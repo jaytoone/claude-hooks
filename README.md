@@ -33,7 +33,7 @@ No configuration required for basic use. Install once, benefit forever.
 ## Quick Start
 
 ```bash
-git clone https://github.com/Be2Jay/claude-hooks
+git clone https://github.com/jaytoone/claude-hooks
 cd claude-hooks-basic
 bash install.sh
 ```
@@ -141,7 +141,7 @@ Additional contents:
 - Post-tool-use hooks for automatic doc indexing
 - Full runbook and skills system integration
 
-[Available on PromptBase →](https://promptbase.com/prompt/code-workflow-3-execution-modes)
+[Available on PromptBase →](https://promptbase.com/prompt/code-workflow-3-execution-modes?via=bejay)
 
 ---
 
