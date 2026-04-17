@@ -127,6 +127,53 @@ For the full customization guide, see [CUSTOMIZE.md](CUSTOMIZE.md).
 
 ---
 
+## Memory Hooks (G1 / G2 / CM)
+
+Claude Code has no persistent memory across sessions. These three hooks fix that — each session automatically gets injected with your project history, codebase graph, and past conversations.
+
+```
+hooks/memory/
+├── git-memory.py      # G1 — time memory: injects git log + project state
+├── g2-augment.py      # G2 — space memory: queries codebase graph DB (SQLite)
+└── chat-memory.py     # CM — conversation memory: FTS5 + vector hybrid search
+```
+
+### G1 — Time Memory (`git-memory.py`)
+
+Runs on every `UserPromptSubmit`. Reads the last 7 days of git history and injects a structured summary into each prompt — so Claude always knows what you've been working on without you re-explaining it.
+
+### G2 — Space Memory (`g2-augment.py`)
+
+Runs after every `Grep`/`Glob` tool call. Queries a SQLite codebase graph to find related entities (files, functions, classes) and surfaces them before Claude even asks. Requires a pre-built graph index.
+
+### CM — Conversation Memory (`chat-memory.py`)
+
+Runs on every `UserPromptSubmit`. Searches past Claude Code conversations using BM25 (FTS5) + vector hybrid retrieval. Recalls relevant decisions, context, and notes from previous sessions instantly.
+
+### Setup
+
+Copy the hooks to your Claude Code hooks directory and register them in `~/.claude/settings.json`:
+
+```bash
+cp hooks/memory/*.py ~/.claude/hooks/
+```
+
+```json
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      { "hooks": [{ "type": "command", "command": "python3 ~/.claude/hooks/git-memory.py" }] },
+      { "hooks": [{ "type": "command", "command": "python3 ~/.claude/hooks/chat-memory.py" }] }
+    ],
+    "PostToolUse": [
+      { "matcher": "Grep|Glob|Read", "hooks": [{ "type": "command", "command": "python3 ~/.claude/hooks/g2-augment.py" }] }
+    ]
+  }
+}
+```
+
+---
+
 ## Pro Version
 
 The Pro version includes everything in this package plus a more advanced hook system designed for complex, multi-step AI workflows.
